@@ -5,10 +5,11 @@
  */
 package kontrolerk;
 
-import domen.NewClass1;
+import domen.DomObjekat;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.List;
 import static kodovi.Kodovi.*;
@@ -20,95 +21,98 @@ import transfer.TOServerOdgovor;
  * @author ivan
  */
 public class KontrolerKL {
-    
-    private static KontrolerKL instance;
-    private Socket soket;
-    
-    private KontrolerKL(){}
-    
-    public static KontrolerKL getInstance(){
-        if(instance == null){
-            instance = new KontrolerKL();
-        }
-        return instance;
-    }
 
-    public Socket getSoket() {
-        return soket;
-    }
+	private static KontrolerKL instance;
+	private Socket soket;
 
-    public void setSoket(Socket soket) {
-        this.soket = soket;
-    }
-    
-    /*-------------------------------------------------------------------------------
-    |  OBJECT OPERACIJE (treba za svaki pozvati kod i proslediti konkretan objekat)  |
-     --------------------------------------------------------------------------------*/
-    
-      // dodaj, izmeni, obrisi
-        public void operacija_izmene(Object obj, int kod_operacije) throws Exception {
-        TOKlijentZahtev klijentZahtev = new TOKlijentZahtev();
-        klijentZahtev.setOperacija(kod_operacije);
-        klijentZahtev.setParametar(obj);
-        ObjectOutputStream outSoket
-                = new ObjectOutputStream(soket.getOutputStream());
-        // belezimo zahtev u soket
-        outSoket.writeObject(klijentZahtev);
-        //sacekaj odgovor od servera
-        ObjectInputStream inStream
-                = new ObjectInputStream(soket.getInputStream());
-        //dobijamo odgovor od servera
-        TOServerOdgovor serverOdgovor
-                = (TOServerOdgovor) inStream.readObject();
-        int statusOperacije = serverOdgovor.getStatusIzvrsenja();
-        if (statusOperacije == STATUS_ODGOVOR_SERVER_NOT_OK) {
-            throw new Exception(serverOdgovor.getPoruka());
-        } 
-    }
-      //vrati
-        public List<Object> operacija_vracanja(Object obj, int kod_operacije) throws IOException, ClassNotFoundException, Exception {
-        TOKlijentZahtev klijentZahtev = new TOKlijentZahtev();
-        klijentZahtev.setOperacija(kod_operacije);
-        //ako je prosledjen objekat za pretragu postavlja se kao parametar
-        //ako nije onda nista
-        if(obj != null)
-             klijentZahtev.setParametar(obj);
-        ObjectOutputStream outSoket
-                = new ObjectOutputStream(soket.getOutputStream());
-        // belezimo zahtev u soket
-        outSoket.writeObject(klijentZahtev);
-        //sacekaj odgovor od servera
-        ObjectInputStream inStream
-                = new ObjectInputStream(soket.getInputStream());
-        //dobijamo odgovor od servera
-        TOServerOdgovor serverOdgovor
-                = (TOServerOdgovor) inStream.readObject();
-        int statusOperacije = serverOdgovor.getStatusIzvrsenja();
-        if (statusOperacije == STATUS_ODGOVOR_SERVER_OK) {
-            return (List<Object>) serverOdgovor.getRezultat();
-        } else {
-            throw new Exception(serverOdgovor.getPoruka());
-        }
-    }
-        
-    /*------------------
-    |KONKRETNE OPERACIJE |
-     ------------------*/
-    //class1  
-    public List<NewClass1> vratiSve() throws Exception{
-        return (List<NewClass1>)(List<?>) operacija_vracanja(null, SELECT_class1); 
-    }    
-        
-    public void dodaj(NewClass1 objekat) throws Exception {
-            operacija_izmene(objekat, INSERT_class1);
-    }
-       
-    public void izmeniKlijenta(NewClass1 objekat) throws Exception{
-        operacija_izmene(objekat,UPDATE_class1);
-    }
-    
-    public void obrisiKlijenta(NewClass1 objekat) throws Exception{
-        operacija_izmene(objekat, DELETE_class1);
-    }
-    
+	private ObjectOutputStream soketOut;
+	private ObjectInputStream soketIn;
+
+	private KontrolerKL() {
+	}
+
+	public static KontrolerKL getInstance() {
+		if (instance == null) {
+			instance = new KontrolerKL();
+		}
+		return instance;
+	}
+
+	private void poveziSeSaServerom() throws IOException {
+
+		Socket soket = new Socket(InetAddress.getLocalHost(), PORT);
+		ObjectOutputStream soketOut = new ObjectOutputStream(soket.getOutputStream());
+		ObjectInputStream soketIn = new ObjectInputStream(soket.getInputStream());
+
+		this.soket = soket;
+		this.soketOut = soketOut;
+		this.soketIn = soketIn;
+	}
+
+	private void prekiniVezu() {
+		try {
+			soket.close();
+		} catch (Exception ex) {
+
+		}
+		soket = null;
+		soketIn = null;
+		soketOut = null;
+	}
+
+	public <T extends DomObjekat> List<T> vratiSve(int kod_operacije)
+			throws IOException, ClassNotFoundException, Exception {
+
+		TOKlijentZahtev klijentZahtev = new TOKlijentZahtev();
+		klijentZahtev.setOperacija(kod_operacije);
+
+		try {
+			poveziSeSaServerom();
+
+			soketOut.writeObject(klijentZahtev);
+			TOServerOdgovor serverOdgovor = (TOServerOdgovor) soketIn.readObject();
+
+			int statusOperacije = serverOdgovor.getStatusIzvrsenja();
+			if (statusOperacije == STATUS_ODGOVOR_SERVER_OK) {
+				return (List<T>) serverOdgovor.getRezultat();
+			} else {
+				throw new Exception(serverOdgovor.getPoruka());
+			}
+		} finally {
+			prekiniVezu();
+		}
+	}
+
+	public void ubaci(DomObjekat objekat) throws Exception {
+		operacija_izmene(objekat, SACUVAJ);
+	}
+
+	public void izmeni(DomObjekat objekat) throws Exception {
+		operacija_izmene(objekat, AZURIRAJ);
+	}
+
+	public void obrisi(DomObjekat objekat) throws Exception {
+		operacija_izmene(objekat, OBRISI);
+	}
+
+	public void operacija_izmene(Object obj, int kod_operacije) throws Exception {
+
+		TOKlijentZahtev klijentZahtev = new TOKlijentZahtev();
+		klijentZahtev.setOperacija(kod_operacije);
+		klijentZahtev.setParametar(obj);
+
+		try {
+			poveziSeSaServerom();
+
+			soketOut.writeObject(klijentZahtev);
+			TOServerOdgovor serverOdgovor = (TOServerOdgovor) soketIn.readObject();
+
+			int statusOperacije = serverOdgovor.getStatusIzvrsenja();
+			if (statusOperacije == STATUS_ODGOVOR_SERVER_NOT_OK) {
+				throw new Exception(serverOdgovor.getPoruka());
+			}
+		} finally {
+			prekiniVezu();
+		}
+	}
 }

@@ -18,6 +18,7 @@ public abstract class DomObjekat {
 	public void setId(long id) { this.id = id; }
 	
 	public abstract Class[] getValueClasses();
+	public abstract String[] getValueNames();
 
 	public abstract void getValues(Object[] vs);
 

@@ -17,20 +17,10 @@ import kontrolerk.KontrolerKL;
  * @author ivan
  */
 public class KlijentPokretanje {
-    
-    private void poveziSeSaServerom() throws IOException {
-        //u ovom slucaju ga vezujem za localhost
-        Socket soket = new Socket(InetAddress.getLocalHost(), PORT);
-        KontrolerKL.getInstance().setSoket(soket);
-        
-        FrmGlavna f = new FrmGlavna();
-        f.setVisible(true);
-        
-    }
 
-    public static void main(String[] args) throws IOException {
-        KlijentPokretanje klijent = new KlijentPokretanje();
-        klijent.poveziSeSaServerom();
-    }
-        
+	public static void main(String[] args) throws IOException {
+		
+		FrmGlavna f = new FrmGlavna();
+		f.setVisible(true);
+	}
 }

@@ -16,8 +16,8 @@ public class DBBroker {
 	
 	private DBBroker(){}
 	
-	public static DBBroker getInstance(){
-		if(instance == null)
+	public static DBBroker getInstance() {
+		if (instance == null)
 			instance = new DBBroker();
 		return instance;
 	}
@@ -48,12 +48,13 @@ public class DBBroker {
 	public void ubaciObjekat(DomObjekat o) throws SQLException {
 
 		Class[] klase = o.getValueClasses();
+		String[] imena = o.getValueNames();
 		
 		int count = klase.length + 1; // + 1 za id
 
-		String qm = "?";;
+		String qm = imena[0];
 		for (int i = 1; i < count; i++)
-			qm += ",?";
+			qm += ("," + imena[i]);
 				
 		String sql = "INSERT INTO " + o.getClass().getSimpleName() + "VALUES (" + qm + ")";
 		PreparedStatement ps = konekcija.prepareStatement(sql);

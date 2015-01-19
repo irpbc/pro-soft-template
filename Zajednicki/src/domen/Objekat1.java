@@ -22,8 +22,10 @@ public class Objekat1 extends DomObjekat {
 	}
 	
 	private static Class[] klase = {  };
-
+	private static String[] imena = {  };
+	
 	public Class[] getValueClasses() { return klase; }
+	public String[] getValueNames() { return imena; }
 
 	public void getValues(Object[] vs) {
 		vs[0] = f1;
