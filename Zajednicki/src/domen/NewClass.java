@@ -14,12 +14,12 @@ import java.util.List;
  *
  * @author ivan
  */
-public class NewClass implements OpstiDomenskiObjekat,Serializable{
+public class NewClass implements OpstiDomenskiObjekat, Serializable{
     
-    @Override
-    public String vratiImeTabele() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+//    @Override
+//    public String vratiImeTabele() {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
 
     @Override
     public String vratiSQL_SELECT() {

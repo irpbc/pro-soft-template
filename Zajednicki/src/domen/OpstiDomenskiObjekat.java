@@ -15,7 +15,8 @@ import java.util.List;
  */
 public interface OpstiDomenskiObjekat {
     
-    public String vratiImeTabele();
+   //public String vratiImeTabele();   //za sada nema potrebe za ovim
+    
     /*----------------
     |    upiti        |
     ------------------*/
