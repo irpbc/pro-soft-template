@@ -53,7 +53,7 @@ public class DBBroker {
     }
     
     public List<OpstiDomenskiObjekat> izvrsiSELECT(OpstiDomenskiObjekat odo) throws SQLException{
-        String sql = odo.vratiSQL_INSERT();
+        String sql = odo.vratiSQL_SELECT();
         Statement s = konekcija.createStatement();
         return odo.vratiSve(s.executeQuery(sql));
     }

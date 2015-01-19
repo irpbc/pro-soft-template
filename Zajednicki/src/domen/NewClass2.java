@@ -5,6 +5,7 @@
  */
 package domen;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.List;
  *
  * @author ivan
  */
-public class NewClass2 implements OpstiDomenskiObjekat{
+public class NewClass2 implements OpstiDomenskiObjekat, Serializable{
 
     @Override
     public String vratiImeTabele() {
