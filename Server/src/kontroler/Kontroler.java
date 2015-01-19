@@ -6,7 +6,7 @@
 package kontroler;
 
 import dbbroker.DBBroker;
-import domen.NewClass1;
+import domen.DomObjekat;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
@@ -17,65 +17,110 @@ import java.util.logging.Logger;
  * @author ivan
  */
 public class Kontroler {
-    
-    private static Kontroler instance;
-    private Kontroler(){}
-    
-    public static Kontroler getInstance(){
-        if(instance == null)
-            instance = new Kontroler();
-        return instance;
-    }
-   //vrati
-    public List<NewClass1> vratiSve(NewClass1 objekat){
-        List<NewClass1> lista = null;
-        try {
-            DBBroker.getInstance().ucitajDrajver();
-            DBBroker.getInstance().poveziSaBazom();
-            //operacija
-            lista = (List<NewClass1>)(List<?>)DBBroker.getInstance().izvrsiSELECT(objekat);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Kontroler.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(Kontroler.class.getName()).log(Level.SEVERE, null, ex);
-        }finally{
-            try {
-                DBBroker.getInstance().close();
-            } catch (SQLException ex) {
-                //nista
-            }
-        }
-        return lista;
-    }
-   //sacuvaj,izmeni,obrisi 
-    public void dodaj/*izmeni,obrisi*/(NewClass1 objekat){
-    try {
-            DBBroker.getInstance().ucitajDrajver();
-            DBBroker.getInstance().poveziSaBazom();
-            
-            //operacija
-            DBBroker.getInstance().izvrsiINSERT(objekat);
-           //DBBroker.getInstance().izvrsiUPDATE(objekat);
-           //DBBroker.getInstance().izvrsiDELETE(objekat);
-            DBBroker.getInstance().commit();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Kontroler.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-        try {
-            DBBroker.getInstance().rollback();
-        } catch (SQLException ex1) {
-            Logger.getLogger(Kontroler.class.getName()).log(Level.SEVERE, null, ex1);
-        }
-            Logger.getLogger(Kontroler.class.getName()).log(Level.SEVERE, null, ex);
-        }finally{
-            try {
-                DBBroker.getInstance().close();
-            } catch (SQLException ex) {
-              //nista  
-            }
-        }
-    }
-    
-    
-    
+
+	private static Kontroler instance;
+
+	private Kontroler() {
+	}
+
+	public static Kontroler getInstance() {
+		if (instance == null) {
+			instance = new Kontroler();
+		}
+		return instance;
+	}
+	
+	private DBBroker dbb = DBBroker.getInstance();
+
+	public <T extends DomObjekat> List<T> vratiSve(Class<T> klasa) {
+		List<T> lista = null;
+		try {
+			dbb.ucitajDrajver();
+			dbb.poveziSaBazom();
+			lista = dbb.vratiSve(klasa);
+		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException | SQLException ex) {
+			Logger.getLogger(Kontroler.class.getName()).log(Level.SEVERE, null, ex);
+		} finally {
+			try {
+				DBBroker.getInstance().close();
+			} catch (SQLException ex) {
+				
+			}
+		}
+		return lista;
+	}
+
+	 
+	public boolean ubaci(DomObjekat objekat) {
+		try {
+			dbb.ucitajDrajver();
+			dbb.poveziSaBazom();
+			dbb.ubaciObjekat(objekat);
+			dbb.commit();
+			return true;
+		} catch (Exception ex) {
+			try {
+				dbb.rollback();
+			} catch (SQLException ex1) {
+				Logger.getLogger(Kontroler.class.getName()).log(Level.SEVERE, null, ex1);
+			}
+			Logger.getLogger(Kontroler.class.getName()).log(Level.SEVERE, null, ex);
+			return false;
+		} finally {
+			try {
+				dbb.close();
+			} catch (SQLException ex) {
+				return false;
+			}
+		}
+	}
+	
+	public boolean izmeni(DomObjekat objekat) {
+		try {
+			dbb.ucitajDrajver();
+			dbb.poveziSaBazom();
+			dbb.izmeniObjekat(objekat);
+			dbb.commit();
+			return true;
+		} catch (Exception ex) {
+			try {
+				dbb.rollback();
+			} catch (SQLException ex1) {
+				Logger.getLogger(Kontroler.class.getName()).log(Level.SEVERE, null, ex1);
+			}
+			Logger.getLogger(Kontroler.class.getName()).log(Level.SEVERE, null, ex);
+			return false;
+		} finally {
+			try {
+				dbb.close();
+			} catch (SQLException ex) {
+				return false;
+			}
+		}
+	}
+	
+	public boolean obrisi(DomObjekat objekat) {
+		try {
+			dbb.ucitajDrajver();
+			dbb.poveziSaBazom();
+			dbb.obrisiObjekat(objekat);
+			dbb.commit();
+			return true;
+		} catch (Exception ex) {
+			try {
+				dbb.rollback();
+			} catch (SQLException ex1) {
+				Logger.getLogger(Kontroler.class.getName()).log(Level.SEVERE, null, ex1);
+			}
+			Logger.getLogger(Kontroler.class.getName()).log(Level.SEVERE, null, ex);
+			return false;
+		} finally {
+			try {
+				dbb.close();
+			} catch (SQLException ex) {
+				return false;
+			}
+		}
+	}
+
 }
