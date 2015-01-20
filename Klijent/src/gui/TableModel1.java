@@ -10,6 +10,7 @@ import domen.DomObjekat;
 import domen.Objekat;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
+import kontrolerk.KontrolerKL;
 
 /**
  *
@@ -44,6 +45,27 @@ public class TableModel1<T extends DomObjekat> extends DefaultTableModel {
 		} else {
 			this.klaseKolona = klaseKolona;
 			this.imenaKolona = imenaKolona;
+		}
+	}
+	
+	public void dodaj(T o) {
+		lista.add(o);
+		fireTableDataChanged();
+	}
+	
+	public void dodajPrazan(T o) {
+		o.setId(-1);
+		lista.add(o);
+		fireTableDataChanged();
+	}
+	
+	public void sacuvaSve() throws Exception {
+		KontrolerKL kontroler = KontrolerKL.getInstance();
+		for (T o : lista) {
+			if (o.getId() == -1)
+				o.setId(kontroler.ubaci(o));
+			else
+				kontroler.izmeni(o);
 		}
 	}
 	

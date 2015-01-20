@@ -83,8 +83,8 @@ public class KontrolerKL {
 		}
 	}
 
-	public void ubaci(DomObjekat objekat) throws Exception {
-		operacijaIzmene(objekat, UBACI);
+	public long ubaci(DomObjekat objekat) throws Exception {
+		return operacijaIzmene(objekat, UBACI);
 	}
 
 	public void izmeni(DomObjekat objekat) throws Exception {
@@ -95,7 +95,7 @@ public class KontrolerKL {
 		operacijaIzmene(objekat, OBRISI);
 	}
 
-	private void operacijaIzmene(Object obj, int kod_operacije) throws Exception {
+	private long operacijaIzmene(Object obj, int kod_operacije) throws Exception {
 
 		TOKlijentZahtev klijentZahtev = new TOKlijentZahtev();
 		klijentZahtev.setOperacija(kod_operacije);
@@ -111,8 +111,15 @@ public class KontrolerKL {
 			if (statusOperacije == STATUS_ODGOVOR_SERVER_NOT_OK) {
 				throw new Exception(serverOdgovor.getPoruka());
 			}
+			Object rez = serverOdgovor.getRezultat();
+			if (rez != null) {
+				return (long)rez;
+			}
+			return -1;
 		} finally {
 			prekiniVezu();
 		}
 	}
+	
+	
 }
