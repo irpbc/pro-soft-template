@@ -25,4 +25,7 @@ public class Kodovi {
 	public static final int   UBACI = 32;
 	public static final int  IZMENI = 33;
 	public static final int  OBRISI = 34;
+	
+	public static final int NADJI_PO_ID_Objekat				= 41;
+	public static final int NADJI_PO_VEZI_Objekat_Objekat2	= 42;
 }

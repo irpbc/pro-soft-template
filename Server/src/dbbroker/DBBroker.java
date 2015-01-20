@@ -45,7 +45,7 @@ public class DBBroker {
 	
 	private static int[] keyIndex = { 1 };
 
-	public void ubaciObjekat(DomObjekat o) throws SQLException {
+	public long ubaciObjekat(DomObjekat o) throws SQLException {
 
 		Class[] klase = o.getValueClasses();
 		String[] imena = o.getValueNames();
@@ -71,7 +71,7 @@ public class DBBroker {
 
 		ResultSet rs = ps.getGeneratedKeys();
 		rs.next();
-		o.setId(rs.getLong(1));
+		return rs.getLong(1);
 	}
 
 	public void izmeniObjekat(DomObjekat o) throws SQLException {
@@ -139,6 +139,77 @@ public class DBBroker {
 			lista.add(o);
 		}
 
+		return lista;
+	}
+	
+	public <T extends DomObjekat> T nadjiPoId(Class<T> klasa, long id)
+			throws SQLException, IllegalAccessException, InstantiationException{
+		
+		String sql = "SELECT * from " + klasa.getSimpleName() + " WHERE Id="+id;
+
+		Statement st = konekcija.createStatement();
+
+		if (!st.execute(sql)) {
+			return null;
+		}
+		
+		T o = klasa.newInstance();
+		Class[] valKlase = o.getValueClasses();
+
+		ResultSet rs = st.getResultSet();
+		rs.next();
+		
+		o.setId(rs.getLong(1));
+		
+		for (int i = 0; i < valKlase.length; i++) {
+			Class cl = valKlase[i];
+			if (cl == Integer.class)		o.setValueAt(i, rs.getInt(i+2));
+			else if (cl == Long.class)		o.setValueAt(i, rs.getLong(i+2));
+			else if (cl == String.class)	o.setValueAt(i, rs.getString(i+2));
+			else if (cl == Double.class)	o.setValueAt(i, rs.getDouble(i+2));
+		}		
+
+		return o;
+	}
+	
+	public <T extends DomObjekat, U extends DomObjekat> List<U> nadjiPoVeziNN(Class<T> klasaT, Class<U> klasaU, long tID)
+			throws SQLException, IllegalAccessException, InstantiationException{
+		
+		String imeKlaseT = klasaT.getSimpleName();
+		String imeKlaseU = klasaU.getSimpleName();
+		U protoU = klasaU.newInstance();
+		Class[] valKlase = protoU.getValueClasses();
+		String[] valImena = protoU.getValueNames();
+		
+		String kolone = imeKlaseU + ".Id";
+		for (String ime : valImena)
+			kolone += ("," + imeKlaseU + "." + ime);
+		
+		String sql = "SELECT ("+kolone+") FROM "+imeKlaseT+imeKlaseU+" JOIN "+imeKlaseU+ 
+					 " WHERE "+imeKlaseT+".Id="+tID;
+
+		Statement st = konekcija.createStatement();
+
+		if (!st.execute(sql)) {
+			return null;
+		}
+
+		ArrayList<U> lista = new ArrayList<>();
+
+		ResultSet rs = st.getResultSet();
+		
+		while (rs.next()) {
+			U u = klasaU.newInstance();
+			u.setId(rs.getLong(1));
+			for (int i = 0; i < valKlase.length; i++) {
+				Class cl = valKlase[i];
+				if (cl == Integer.class)		u.setValueAt(i+3, rs.getInt(i+1));
+				else if (cl == Long.class)		u.setValueAt(i+3, rs.getLong(i+1));
+				else if (cl == String.class)	u.setValueAt(i+3, rs.getString(i+1));
+				else if (cl == Double.class)	u.setValueAt(i+3, rs.getDouble(i+1));
+			}
+			lista.add(u);
+		}
 		return lista;
 	}
 }

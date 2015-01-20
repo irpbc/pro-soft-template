@@ -51,13 +51,13 @@ public class Kontroler {
 	}
 
 	 
-	public boolean ubaci(DomObjekat objekat) {
+	public long ubaci(DomObjekat objekat) {
 		try {
 			dbb.ucitajDrajver();
 			dbb.poveziSaBazom();
-			dbb.ubaciObjekat(objekat);
+			long id = dbb.ubaciObjekat(objekat);
 			dbb.commit();
-			return true;
+			return id;
 		} catch (Exception ex) {
 			try {
 				dbb.rollback();
@@ -65,12 +65,12 @@ public class Kontroler {
 				Logger.getLogger(Kontroler.class.getName()).log(Level.SEVERE, null, ex1);
 			}
 			Logger.getLogger(Kontroler.class.getName()).log(Level.SEVERE, null, ex);
-			return false;
+			return -1;
 		} finally {
 			try {
 				dbb.close();
 			} catch (SQLException ex) {
-				return false;
+				return -1;
 			}
 		}
 	}
@@ -123,4 +123,39 @@ public class Kontroler {
 		}
 	}
 
+	public <T extends DomObjekat> T nadjiPoId(Class<T> klasa, long id) {
+		T t = null;
+		try {
+			dbb.ucitajDrajver();
+			dbb.poveziSaBazom();
+			t = dbb.nadjiPoId(klasa, id);
+		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException | SQLException ex) {
+			Logger.getLogger(Kontroler.class.getName()).log(Level.SEVERE, null, ex);
+		} finally {
+			try {
+				DBBroker.getInstance().close();
+			} catch (SQLException ex) {
+				
+			}
+		}
+		return t;
+	}
+	
+	public <T extends DomObjekat, U extends DomObjekat> List<U> nadjiPoVeziNN(Class<T> klasaT, Class<U> klasaU, long id) {
+		List<U> lista = null;
+		try {
+			dbb.ucitajDrajver();
+			dbb.poveziSaBazom();
+			lista = dbb.nadjiPoVeziNN(klasaT, klasaU, id);
+		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException | SQLException ex) {
+			Logger.getLogger(Kontroler.class.getName()).log(Level.SEVERE, null, ex);
+		} finally {
+			try {
+				DBBroker.getInstance().close();
+			} catch (SQLException ex) {
+				
+			}
+		}
+		return lista;
+	}
 }

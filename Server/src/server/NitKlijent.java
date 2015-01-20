@@ -65,10 +65,12 @@ public class NitKlijent extends Thread {
 	private TOServerOdgovor obradiZahtev(TOKlijentZahtev klijentZahtev) throws IOException {
 		
 		int operacija = klijentZahtev.getOperacija();
+		Object parametar = klijentZahtev.getParametar();
 		TOServerOdgovor odg = new TOServerOdgovor();
 		odg.setStatusIzvrsenja(STATUS_ODGOVOR_SERVER_NOT_OK);
 		
 		List ls = null;
+		Object obj = null;
 		
 		switch (operacija) {
 			
@@ -97,8 +99,10 @@ public class NitKlijent extends Thread {
 				
 				
 			case UBACI:
-				if (kontroler.ubaci((DomObjekat)klijentZahtev.getParametar())) {
+				long id = kontroler.ubaci((DomObjekat)klijentZahtev.getParametar());
+				if (id == -1) {
 					odg.setStatusIzvrsenja(STATUS_ODGOVOR_SERVER_OK);
+					odg.setRezultat(id);
 				}
 				break;
 			case IZMENI:
@@ -109,6 +113,22 @@ public class NitKlijent extends Thread {
 			case OBRISI:
 				if (kontroler.obrisi((DomObjekat)klijentZahtev.getParametar())) {
 					odg.setStatusIzvrsenja(STATUS_ODGOVOR_SERVER_OK);
+				}
+				break;
+			
+			case NADJI_PO_ID_Objekat:
+				obj = kontroler.nadjiPoId(Objekat.class, (long)parametar);
+				if (ls != null) {
+					odg.setStatusIzvrsenja(STATUS_ODGOVOR_SERVER_OK);
+					odg.setRezultat(ls);
+				}
+				break;
+				
+			case NADJI_PO_VEZI_Objekat_Objekat2:
+				ls = kontroler.nadjiPoVeziNN(Objekat.class, Objekat1.class, (long)parametar);
+				if (ls != null) {
+					odg.setStatusIzvrsenja(STATUS_ODGOVOR_SERVER_OK);
+					odg.setRezultat(ls);
 				}
 				break;
 		}
