@@ -6,6 +6,7 @@
 
 package gui;
 
+import domen.DomObjekat;
 import domen.Objekat;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
@@ -14,39 +15,62 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author Ivan
  */
-public class TableModel1 extends DefaultTableModel {
+public class TableModel1<T extends DomObjekat> extends DefaultTableModel {
 
-	private List<Objekat> lista;
+	private List<T> lista;
 	
-	private static Class[] klase = { };
+	private Class[] klaseKolona;
+	private String[] imenaKolona;
 	
-	private static String[] imena = {  };
-	
-	private static int brojKolona = 0;
+	private boolean showID;
+
+	public TableModel1(Class<T> klasa, List<T> lista, boolean showID) {
+		this.showID = showID;
+		this.lista = lista;
+		
+		T proto = null;
+		try { proto = klasa.newInstance(); } catch (Exception ex) {}
+		
+		Class[] klaseKolona = proto.getValueClasses();
+		String[] imenaKolona = proto.getValueNames();
+		
+		if (showID) {
+			this.imenaKolona = new String[imenaKolona.length + 1];
+			this.klaseKolona = new Class[klaseKolona.length + 1];
+			System.arraycopy(imenaKolona, 0, this.imenaKolona, 1, imenaKolona.length);
+			System.arraycopy(klaseKolona, 0, this.klaseKolona, 1, klaseKolona.length);
+			this.imenaKolona[0] = "ID";
+			this.klaseKolona[0] = Long.class;
+		} else {
+			this.klaseKolona = klaseKolona;
+			this.imenaKolona = imenaKolona;
+		}
+	}
 	
 	@Override
 	public void setValueAt(Object aValue, int row, int column) {
-		Objekat o = lista.get(row);
-		switch (column) {
-			case 0: o.setF1((int)aValue); break;
-			case 1: o.setF2((int)aValue); break;
-			case 2: o.setF3((int)aValue); break;
-			case 3: o.setF4((int)aValue); break;
-			case 4: o.setF5((int)aValue); break;
+		if (showID) {
+			if (column == 0) {
+				lista.get(row).setId((long)aValue);
+			} else {
+				lista.get(row).setValueAt(column-1, aValue);
+			}
+		} else {
+			lista.get(row).setValueAt(column, aValue);
 		}
 	}
 
 	@Override
 	public Object getValueAt(int row, int column) {
-		Objekat o = lista.get(row);
-		switch (column) {
-			case 0: return o.getF1();
-			case 1: return o.getF2();
-			case 2: return o.getF3();
-			case 3: return o.getF4();
-			case 4: return o.getF5();
+		if (showID) {
+			if (column == 0) {
+				return lista.get(row).getId();
+			} else {
+				return lista.get(row).getValueAt(column-1);
+			}
+		} else {
+			return lista.get(row).getValueAt(column);
 		}
-		return o;
 	}
 
 	@Override
@@ -56,12 +80,12 @@ public class TableModel1 extends DefaultTableModel {
 
 	@Override
 	public String getColumnName(int column) {
-		return imena[column];
+		return imenaKolona[column];
 	}
 
 	@Override
 	public int getColumnCount() {
-		return brojKolona;
+		return klaseKolona.length;
 	}
 
 	@Override
@@ -71,6 +95,6 @@ public class TableModel1 extends DefaultTableModel {
 
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {
-		return klase[columnIndex];
-	}	
+		return klaseKolona[columnIndex];
+	}
 }

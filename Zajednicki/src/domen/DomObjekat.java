@@ -20,7 +20,6 @@ public abstract class DomObjekat {
 	public abstract Class[] getValueClasses();
 	public abstract String[] getValueNames();
 
-	public abstract void getValues(Object[] vs);
-
-	public abstract void setValues(Object[] vs);
+	public abstract Object getValueAt(int index);
+	public abstract void setValueAt(int index, Object value);
 }
