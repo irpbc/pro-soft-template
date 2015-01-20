@@ -40,9 +40,9 @@ public class KontrolerKL {
 
 	private void poveziSeSaServerom() throws IOException {
 
-		Socket soket = new Socket(InetAddress.getLocalHost(), PORT);
-		ObjectOutputStream soketOut = new ObjectOutputStream(soket.getOutputStream());
-		ObjectInputStream soketIn = new ObjectInputStream(soket.getInputStream());
+		soket = new Socket(InetAddress.getLocalHost(), PORT);
+		soketOut = new ObjectOutputStream(soket.getOutputStream());
+		soketIn = new ObjectInputStream(soket.getInputStream());
 
 		this.soket = soket;
 		this.soketOut = soketOut;
@@ -84,18 +84,18 @@ public class KontrolerKL {
 	}
 
 	public void ubaci(DomObjekat objekat) throws Exception {
-		operacija_izmene(objekat, SACUVAJ);
+		operacijaIzmene(objekat, UBACI);
 	}
 
 	public void izmeni(DomObjekat objekat) throws Exception {
-		operacija_izmene(objekat, AZURIRAJ);
+		operacijaIzmene(objekat, IZMENI);
 	}
 
 	public void obrisi(DomObjekat objekat) throws Exception {
-		operacija_izmene(objekat, OBRISI);
+		operacijaIzmene(objekat, OBRISI);
 	}
 
-	public void operacija_izmene(Object obj, int kod_operacije) throws Exception {
+	private void operacijaIzmene(Object obj, int kod_operacije) throws Exception {
 
 		TOKlijentZahtev klijentZahtev = new TOKlijentZahtev();
 		klijentZahtev.setOperacija(kod_operacije);

@@ -96,12 +96,12 @@ public class NitKlijent extends Thread {
 				
 				
 				
-			case SACUVAJ:
+			case UBACI:
 				if (kontroler.ubaci((DomObjekat)klijentZahtev.getParametar())) {
 					odg.setStatusIzvrsenja(STATUS_ODGOVOR_SERVER_OK);
 				}
 				break;
-			case AZURIRAJ:
+			case IZMENI:
 				if (kontroler.izmeni((DomObjekat)klijentZahtev.getParametar())) {
 					odg.setStatusIzvrsenja(STATUS_ODGOVOR_SERVER_OK);
 				}

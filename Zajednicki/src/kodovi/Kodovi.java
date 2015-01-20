@@ -22,7 +22,7 @@ public class Kodovi {
 	public static final int VRATI_SVE_Objekat1 = 21; 
 	public static final int VRATI_SVE_Objekat2 = 31; 
 	
-	public static final int   SACUVAJ = 32;
-	public static final int  AZURIRAJ = 33;
-	public static final int    OBRISI = 34;
+	public static final int   UBACI = 32;
+	public static final int  IZMENI = 33;
+	public static final int  OBRISI = 34;
 }
